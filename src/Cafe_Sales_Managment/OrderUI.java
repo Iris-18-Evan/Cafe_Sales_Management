@@ -4,6 +4,13 @@
  */
 package Cafe_Sales_Managment;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.mysql.cj.jdbc.PreparedStatementWrapper;
+import com.sun.jdi.connect.spi.Connection;
+import java.beans.Statement;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author ucwaz
@@ -77,6 +84,11 @@ public class OrderUI extends javax.swing.JFrame {
         jPanel1.add(Clearbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 280, -1, -1));
 
         jButton11.setText("Place Order");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
         jPanel1.add(jButton11, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 280, 140, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 380));
@@ -84,6 +96,11 @@ public class OrderUI extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        // TODO add your handling code here:
+       
+    }//GEN-LAST:event_jButton11ActionPerformed
 
     /**
      * @param args the command line arguments

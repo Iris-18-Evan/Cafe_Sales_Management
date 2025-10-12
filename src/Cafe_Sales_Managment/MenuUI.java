@@ -5,7 +5,10 @@
 package Cafe_Sales_Managment;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.mysql.cj.jdbc.PreparedStatementWrapper;
+import com.mysql.cj.xdevapi.Result;
 import com.sun.jdi.connect.spi.Connection;
+import java.beans.Statement;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -178,9 +181,98 @@ public class MenuUI extends javax.swing.JFrame {
     }//GEN-LAST:event_AddtoCartActionPerformed
 
     private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
-        Object orderItems;
-        // TODO add your handling code here:
+         Object orderItems;
         
+        final String CUSTOMER_NAME = "Sarah";
+
+        if (orderItems == null) {
+            orderItems = new ArrayList<>();
+            orderItems.add(new OrderItems("Cappuccino", 1, 550.00));
+            orderItems.add(new OrderItems("Croissant", 2, 350.00));
+        }
+        // -------------------------------------------------------------
+
+        Connection con = null;
+        PreparedStatementWrapper pstmtOrder = null;
+        PreparedStatementWrapper pstmtDetails = null;
+
+        if (orderItems.) { 
+        JOptionPane.showMessageDialog(this, "The order list is empty.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+        // Calculate the grand total from the OrderItem list
+        double totalAmount = orderItems.stream().mapToDouble(OrderItem::getSubtotal).sum();
+
+        try {
+            con = ConnectionClass.createConnection();
+            
+
+            // 1. Insert into Orders table (Header)
+            String sqlOrder = "INSERT INTO Orders (Customer_Name, Order_Date, Total_Amount) VALUES (?, NOW(), ?)";
+            pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
+
+            pstmtOrder.setString(1, CUSTOMER_NAME);
+            pstmtOrder.setDouble(2, totalAmount);
+            pstmtOrder.executeUpdate();
+
+            // Get the Order_ID
+            int orderId = -1;
+            ResultSet rs = pstmtOrder.getGeneratedKeys();
+            if (rs.next()) {
+                orderId = rs.getInt(1);
+            } else {
+                throw new SQLServerException("Failed to retrieve generated Order ID.");
+            }
+
+            // 2. Insert into Order_Details table (Line Items) - NOW REQUIRES 5 VALUES
+            String sqlDetails = "INSERT INTO Order_Details (Order_ID, Item_Name, Quantity, Unit_Price, Subtotal) VALUES (?, ?, ?, ?, ?)";
+            pstmtDetails = con.prepareStatement(sqlDetails);
+
+            for (OrderItem item : orderItems) {
+                pstmtDetails.setInt(1, orderId);                       // 1: Order_ID
+                pstmtDetails.setString(2, item.getItemName());         // 2: Item_Name
+                pstmtDetails.setInt(3, item.getQuantity());            // 3: Quantity
+                pstmtDetails.setDouble(4, item.getUnitPrice());        // 4: Unit_Price (NEWLY ADDED)
+                pstmtDetails.setDouble(5, item.getSubtotal());         // 5: Subtotal
+                pstmtDetails.addBatch();
+            }
+
+            pstmtDetails.executeBatch(); // Execute all line item inserts
+
+            JOptionPane.showMessageDialog(this,
+                    "Order Placed Successfully for " + CUSTOMER_NAME + "! Order ID: " + orderId,
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            this.dispose();
+
+        } catch (Exception e) {
+            try {
+                if (con != null) {
+                    con.rollback(); // 4. ROLLBACK TRANSACTION ❌
+                }
+            } catch (SQLServerException ex) {
+                ex.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+
+        } finally {
+            // Close resources
+            try {
+                if (pstmtDetails != null) {
+                    pstmtDetails.close();
+                }
+                if (pstmtOrder != null) {
+                    pstmtOrder.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLServerException e) {
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_btnPlacceorderActionPerformed
 
     /**
