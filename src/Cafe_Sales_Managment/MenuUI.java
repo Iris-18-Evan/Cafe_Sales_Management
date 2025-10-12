@@ -4,6 +4,9 @@
  */
 package Cafe_Sales_Managment;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.sun.jdi.connect.spi.Connection;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
@@ -106,9 +109,14 @@ public class MenuUI extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(cartTable);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 20, 230, 220));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 10, 230, 220));
 
         btnPlacceorder.setText("Place Order");
+        btnPlacceorder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPlacceorderActionPerformed(evt);
+            }
+        });
         jPanel1.add(btnPlacceorder, new org.netbeans.lib.awtextra.AbsoluteConstraints(629, 270, 110, 30));
 
         AddtoCart.setText("Add to cart");
@@ -122,13 +130,13 @@ public class MenuUI extends javax.swing.JFrame {
         jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
         jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 0, 10, 250));
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 0, 20, 250));
 
         jSeparator2.setBackground(new java.awt.Color(0, 0, 0));
         jSeparator2.setForeground(new java.awt.Color(0, 0, 0));
         jPanel1.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 770, 10));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 340));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 320));
 
         pack();
         setLocationRelativeTo(null);
@@ -168,6 +176,12 @@ public class MenuUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Please select an item first!");
         }
     }//GEN-LAST:event_AddtoCartActionPerformed
+
+    private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
+        Object orderItems;
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_btnPlacceorderActionPerformed
 
     /**
      * @param args the command line arguments
