@@ -6,6 +6,7 @@ package Cafe_Sales_Managment;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author ucwaz
@@ -41,49 +42,27 @@ public class MenuUI extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         btnAdd1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
         btnLogout = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         Menutable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jPanel3 = new javax.swing.JPanel();
+        cartTable = new javax.swing.JTable();
         btnPlacceorder = new javax.swing.JButton();
+        AddtoCart = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
 
         jMenuItem1.setText("jMenuItem1");
 
         btnAdd1.setText("Add");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Menu");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setMinimumSize(new java.awt.Dimension(400, 400));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Menu");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(133, 133, 133)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(322, Short.MAX_VALUE))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 60));
 
         btnLogout.setText("Logout");
         btnLogout.addActionListener(new java.awt.event.ActionListener() {
@@ -91,7 +70,7 @@ public class MenuUI extends javax.swing.JFrame {
                 btnLogoutActionPerformed(evt);
             }
         });
-        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 70, 100, 30));
+        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 270, 100, 30));
 
         Menutable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -115,32 +94,44 @@ public class MenuUI extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(Menutable);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 370, 150));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 370, 230));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        cartTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
                 "Cart", "Price"
             }
         ));
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane2.setViewportView(cartTable);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 120, 350, 130));
-
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 120, 350, 130));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 20, 230, 220));
 
         btnPlacceorder.setText("Place Order");
         jPanel1.add(btnPlacceorder, new org.netbeans.lib.awtextra.AbsoluteConstraints(629, 270, 110, 30));
 
+        AddtoCart.setText("Add to cart");
+        AddtoCart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddtoCartActionPerformed(evt);
+            }
+        });
+        jPanel1.add(AddtoCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(525, 270, 90, 30));
+
+        jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
+        jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 0, 10, 250));
+
+        jSeparator2.setBackground(new java.awt.Color(0, 0, 0));
+        jSeparator2.setForeground(new java.awt.Color(0, 0, 0));
+        jPanel1.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 770, 10));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 340));
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     
@@ -162,6 +153,21 @@ public class MenuUI extends javax.swing.JFrame {
             loginPage.setVisible(true);
         }
     }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void AddtoCartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddtoCartActionPerformed
+        // TODO add your handling code here:
+        if (Menutable.getSelectedRow() != -1) {
+            Object Cartitem = Menutable.getModel().getValueAt(Menutable.getSelectedRow(), 0);
+            Object Cartcategory = Menutable.getModel().getValueAt(Menutable.getSelectedRow(), 1);
+            Object Cartprice = Menutable.getModel().getValueAt(Menutable.getSelectedRow(), 2);
+            DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
+            Object[] rowData1 = {Cartitem, Cartprice};
+            model.addRow(rowData1);
+            JOptionPane.showMessageDialog(this, "Item added to cart!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select an item first!");
+        }
+    }//GEN-LAST:event_AddtoCartActionPerformed
 
     /**
      * @param args the command line arguments
@@ -200,18 +206,18 @@ public class MenuUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AddtoCart;
     private javax.swing.JTable Menutable;
     private javax.swing.JButton btnAdd1;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnPlacceorder;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JTable cartTable;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     // End of variables declaration//GEN-END:variables
 
     private void setupTable() {

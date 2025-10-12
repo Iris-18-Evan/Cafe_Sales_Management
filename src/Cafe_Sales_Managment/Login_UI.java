@@ -43,11 +43,10 @@ public class Login_UI extends javax.swing.JFrame {
         Loginbtn1 = new javax.swing.JButton();
         cmbRole = new javax.swing.JComboBox<>();
         Showpass = new javax.swing.JCheckBox();
-        jPanel2 = new javax.swing.JPanel();
-        Login = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Login");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -58,14 +57,14 @@ public class Login_UI extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Password");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 150, 70, -1));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 70, -1));
 
         Username.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         Username.setForeground(new java.awt.Color(255, 255, 255));
         Username.setText("Username");
-        jPanel1.add(Username, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 70, 70, -1));
-        jPanel1.add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 100, 180, -1));
-        jPanel1.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, 180, -1));
+        jPanel1.add(Username, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 30, 70, -1));
+        jPanel1.add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 60, 180, -1));
+        jPanel1.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 140, 180, -1));
 
         SignUpbtn.setText("Sign Up");
         SignUpbtn.addActionListener(new java.awt.event.ActionListener() {
@@ -73,20 +72,20 @@ public class Login_UI extends javax.swing.JFrame {
                 SignUpbtnActionPerformed(evt);
             }
         });
-        jPanel1.add(SignUpbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 360, -1, -1));
+        jPanel1.add(SignUpbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 320, -1, -1));
 
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("____________");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 330, 80, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 290, 80, -1));
 
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("____________");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 330, 80, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 290, 80, -1));
 
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("or");
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 330, 50, -1));
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 290, 50, -1));
 
         Loginbtn1.setText("Login");
         Loginbtn1.addActionListener(new java.awt.event.ActionListener() {
@@ -94,10 +93,10 @@ public class Login_UI extends javax.swing.JFrame {
                 Loginbtn1ActionPerformed(evt);
             }
         });
-        jPanel1.add(Loginbtn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 300, -1, -1));
+        jPanel1.add(Loginbtn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 260, -1, -1));
 
         cmbRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Role", "Staff", "Customer" }));
-        jPanel1.add(cmbRole, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 260, 140, -1));
+        jPanel1.add(cmbRole, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 220, 140, -1));
 
         Showpass.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         Showpass.setText("Show Password");
@@ -106,33 +105,7 @@ public class Login_UI extends javax.swing.JFrame {
                 ShowpassActionPerformed(evt);
             }
         });
-        jPanel1.add(Showpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 210, -1, -1));
-
-        jPanel2.setBackground(new java.awt.Color(51, 51, 51));
-
-        Login.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        Login.setForeground(new java.awt.Color(255, 255, 255));
-        Login.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        Login.setText("LOGIN");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(0, 130, Short.MAX_VALUE)
-                .addComponent(Login, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 130, Short.MAX_VALUE))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(Login, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 60));
+        jPanel1.add(Showpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 170, -1, -1));
 
         jLabel5.setIcon(new javax.swing.ImageIcon("C:\\computer files\\Mona Waazeer\\cafeeee.jpg")); // NOI18N
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -540, 400, 940));
@@ -140,6 +113,7 @@ public class Login_UI extends javax.swing.JFrame {
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignUpbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignUpbtnActionPerformed
@@ -246,7 +220,6 @@ public class Login_UI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel Login;
     private javax.swing.JButton Loginbtn1;
     private javax.swing.JCheckBox Showpass;
     private javax.swing.JButton SignUpbtn;
@@ -258,7 +231,6 @@ public class Login_UI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
