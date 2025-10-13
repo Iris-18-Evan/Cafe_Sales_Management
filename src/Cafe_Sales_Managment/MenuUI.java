@@ -4,12 +4,13 @@
  */
 package Cafe_Sales_Managment;
 
-import com.microsoft.sqlserver.jdbc.SQLServerException;
-import com.mysql.cj.jdbc.PreparedStatementWrapper;
-import com.mysql.cj.xdevapi.Result;
-import com.sun.jdi.connect.spi.Connection;
-import java.beans.Statement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
@@ -76,7 +77,7 @@ public class MenuUI extends javax.swing.JFrame {
                 btnLogoutActionPerformed(evt);
             }
         });
-        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 270, 100, 30));
+        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 270, 100, 30));
 
         Menutable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -100,7 +101,7 @@ public class MenuUI extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(Menutable);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 370, 230));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 370, 230));
 
         cartTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -112,7 +113,7 @@ public class MenuUI extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(cartTable);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 10, 230, 220));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 10, 230, 230));
 
         btnPlacceorder.setText("Place Order");
         btnPlacceorder.addActionListener(new java.awt.event.ActionListener() {
@@ -128,7 +129,7 @@ public class MenuUI extends javax.swing.JFrame {
                 AddtoCartActionPerformed(evt);
             }
         });
-        jPanel1.add(AddtoCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(525, 270, 90, 30));
+        jPanel1.add(AddtoCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(505, 270, 110, 30));
 
         jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
         jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
@@ -181,66 +182,84 @@ public class MenuUI extends javax.swing.JFrame {
     }//GEN-LAST:event_AddtoCartActionPerformed
 
     private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
-         Object orderItems;
         
+        List<OrderItem> orderItems = new ArrayList<>();
         final String CUSTOMER_NAME = "Sarah";
 
-        if (orderItems == null) {
-            orderItems = new ArrayList<>();
-            orderItems.add(new OrderItems("Cappuccino", 1, 550.00));
-            orderItems.add(new OrderItems("Croissant", 2, 350.00));
+        // Temporary order items
+        orderItems.add(new OrderItem("Cappuccino", 1, 550.00));
+        orderItems.add(new OrderItem("Croissant", 2, 350.00));
+
+        // Check if order list is empty
+        if (orderItems.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "The order list is empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        // -------------------------------------------------------------
+
+        // Calculate total
+        double totalAmount = orderItems.stream()
+                .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+                .sum();
 
         Connection con = null;
-        PreparedStatementWrapper pstmtOrder = null;
-        PreparedStatementWrapper pstmtDetails = null;
-
-        if (orderItems.) { 
-        JOptionPane.showMessageDialog(this, "The order list is empty.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-        // Calculate the grand total from the OrderItem list
-        double totalAmount = orderItems.stream().mapToDouble(OrderItem::getSubtotal).sum();
+        PreparedStatement pstmtOrder = null;
+        PreparedStatement pstmtDetails = null;
 
         try {
             con = ConnectionClass.createConnection();
-            
+            con.setAutoCommit(false); // Start transaction
 
-            // 1. Insert into Orders table (Header)
-            String sqlOrder = "INSERT INTO Orders (Customer_Name, Order_Date, Total_Amount) VALUES (?, NOW(), ?)";
+            // 1️⃣ Insert into Orders table (header)
+            String sqlOrder = "INSERT INTO Orders (Customer_Name, Total_Amount) VALUES (?, ?)";
             pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
-
             pstmtOrder.setString(1, CUSTOMER_NAME);
             pstmtOrder.setDouble(2, totalAmount);
             pstmtOrder.executeUpdate();
 
-            // Get the Order_ID
+            // Retrieve generated Order_ID
             int orderId = -1;
-            ResultSet rs = pstmtOrder.getGeneratedKeys();
-            if (rs.next()) {
-                orderId = rs.getInt(1);
-            } else {
-                throw new SQLServerException("Failed to retrieve generated Order ID.");
+            try (ResultSet rs = pstmtOrder.getGeneratedKeys()) {
+                if (rs.next()) {
+                    orderId = rs.getInt(1);
+                } else {
+                    throw new SQLException("Failed to retrieve generated Order ID.");
+                }
             }
 
-            // 2. Insert into Order_Details table (Line Items) - NOW REQUIRES 5 VALUES
+            // 2️⃣ Insert into Order_Details table (line items)
+            String sqlOrders = "INSERT INTO Orders (Order_ID, Customer_Name, Order_Date, Total_Amount) VALUES (?,?,?,?)";
+            pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
+            pstmtOrder.setString(1, CUSTOMER_NAME);
+            pstmtOrder.setDouble(2, totalAmount);
+            pstmtOrder.executeUpdate();
+
+            // Get generated Order_ID
+            int Order_ID = -1;
+            ResultSet rs = pstmtOrder.getGeneratedKeys();
+            if (rs.next()) {
+                Order_ID = rs.getInt(1);
+            } else {
+                throw new SQLException("Failed to retrieve generated Order ID.");
+            }
+
+            // 2️⃣ Insert line items into Order_Details
             String sqlDetails = "INSERT INTO Order_Details (Order_ID, Item_Name, Quantity, Unit_Price, Subtotal) VALUES (?, ?, ?, ?, ?)";
             pstmtDetails = con.prepareStatement(sqlDetails);
 
             for (OrderItem item : orderItems) {
-                pstmtDetails.setInt(1, orderId);                       // 1: Order_ID
-                pstmtDetails.setString(2, item.getItemName());         // 2: Item_Name
-                pstmtDetails.setInt(3, item.getQuantity());            // 3: Quantity
-                pstmtDetails.setDouble(4, item.getUnitPrice());        // 4: Unit_Price (NEWLY ADDED)
-                pstmtDetails.setDouble(5, item.getSubtotal());         // 5: Subtotal
+                pstmtDetails.setInt(1, orderId); // MUST provide Order_ID here
+                pstmtDetails.setString(2, item.getItemName());
+                pstmtDetails.setInt(3, item.getQuantity());
+                pstmtDetails.setDouble(4, item.getUnitPrice());
+                pstmtDetails.setDouble(5, item.getQuantity() * item.getUnitPrice());
                 pstmtDetails.addBatch();
             }
 
-            pstmtDetails.executeBatch(); // Execute all line item inserts
+            pstmtDetails.executeBatch();
+            con.commit();
 
             JOptionPane.showMessageDialog(this,
-                    "Order Placed Successfully for " + CUSTOMER_NAME + "! Order ID: " + orderId,
+                    "Order placed successfully for " + CUSTOMER_NAME + "! Order ID: " + orderId,
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
 
@@ -249,16 +268,18 @@ public class MenuUI extends javax.swing.JFrame {
         } catch (Exception e) {
             try {
                 if (con != null) {
-                    con.rollback(); // 4. ROLLBACK TRANSACTION ❌
+                    con.rollback();
                 }
-            } catch (SQLServerException ex) {
+            } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
 
         } finally {
-            // Close resources
             try {
                 if (pstmtDetails != null) {
                     pstmtDetails.close();
@@ -269,7 +290,7 @@ public class MenuUI extends javax.swing.JFrame {
                 if (con != null) {
                     con.close();
                 }
-            } catch (SQLServerException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
