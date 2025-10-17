@@ -4,13 +4,15 @@
  */
 package Cafe_Sales_Managment;
 
-import com.microsoft.sqlserver.jdbc.SQLServerException;
-import com.mysql.cj.jdbc.PreparedStatementWrapper;
-import com.sun.jdi.connect.spi.Connection;
-import java.beans.Statement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
-
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author ucwaz
@@ -35,7 +37,7 @@ public class OrderUI extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        Cusname = new javax.swing.JTextField();
+        txtCustomer = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
@@ -56,14 +58,11 @@ public class OrderUI extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Customer");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, -1));
-        jPanel1.add(Cusname, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 150, -1));
+        jPanel1.add(txtCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 150, -1));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
                 "Food item", "Decimal"
@@ -107,8 +106,125 @@ public class OrderUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
-        // TODO add your handling code here:
-        
+        // Collect customer details from UI
+        String CUSTOMER_NAME = txtCustomer.getText().trim();
+
+        if (CUSTOMER_NAME.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a customer name.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "The order list is empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Build order items from table
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object itemObj = model.getValueAt(i, 0);
+            Object qtyObj = model.getValueAt(i, 1);
+            Object priceObj = model.getValueAt(i, 2);
+
+            if (itemObj == null || qtyObj == null || priceObj == null) {
+                JOptionPane.showMessageDialog(this, "Order item details are missing in row " + (i + 1) + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String itemName = itemObj.toString();
+            int quantity;
+            double price;
+            try {
+                quantity = Integer.parseInt(qtyObj.toString());
+                price = Double.parseDouble(priceObj.toString());
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(this, "Invalid number format in row " + (i + 1) + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            orderItems.add(new OrderItem(itemName, quantity, price));
+        }
+
+        // Calculate order total
+        double totalAmount = orderItems.stream()
+                .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+                .sum();
+
+        Connection con = null;
+        PreparedStatement pstmtOrder = null;
+        PreparedStatement pstmtDetails = null;
+
+        try {
+            con = ConnectionClass.createConnection();
+            con.setAutoCommit(false); // Transaction start
+
+            // Insert Order (header)
+            String sqlOrder = "INSERT INTO Orders (Customer_Name, Total_Amount) VALUES (?, ?)";
+            pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
+            pstmtOrder.setString(1, CUSTOMER_NAME);
+            pstmtOrder.setDouble(2, totalAmount);
+            pstmtOrder.executeUpdate();
+
+            int orderId = -1;
+            try (ResultSet rs = pstmtOrder.getGeneratedKeys()) {
+                if (rs.next()) {
+                    orderId = rs.getInt(1);
+                } else {
+                    throw new SQLException("Failed to retrieve generated Order ID.");
+                }
+            }
+
+            // Insert Order Details (line items)
+            String sqlDetails = "INSERT INTO Order_Details (Order_ID, Item_Name, Quantity, Unit_Price, Subtotal) VALUES (?, ?, ?, ?, ?)";
+            pstmtDetails = con.prepareStatement(sqlDetails);
+            for (OrderItem item : orderItems) {
+                pstmtDetails.setInt(1, orderId);
+                pstmtDetails.setString(2, item.getItemName());
+                pstmtDetails.setInt(3, item.getQuantity());
+                pstmtDetails.setDouble(4, item.getUnitPrice());
+                pstmtDetails.setDouble(5, item.getQuantity() * item.getUnitPrice());
+                pstmtDetails.addBatch();
+            }
+            pstmtDetails.executeBatch();
+
+            con.commit();
+
+            JOptionPane.showMessageDialog(this,
+                    "Order placed successfully for " + CUSTOMER_NAME + "! Order ID: " + orderId,
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            // Optionally clear UI
+            model.setRowCount(0);
+            txtCustomer.setText("");
+            this.dispose();
+
+        } catch (Exception e) {
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmtDetails != null) {
+                    pstmtDetails.close();
+                }
+                if (pstmtOrder != null) {
+                    pstmtOrder.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
        
     }//GEN-LAST:event_jButton11ActionPerformed
 
@@ -157,7 +273,6 @@ public class OrderUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Clearbtn;
-    private javax.swing.JTextField Cusname;
     private javax.swing.JButton Removebtn;
     private javax.swing.JButton btnReturn;
     private javax.swing.JButton jButton11;
@@ -166,5 +281,6 @@ public class OrderUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTextField txtCustomer;
     // End of variables declaration//GEN-END:variables
 }

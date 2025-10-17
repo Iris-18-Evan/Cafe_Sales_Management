@@ -184,7 +184,7 @@ public class MenuUI extends javax.swing.JFrame {
     private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
         
         List<OrderItem> orderItems = new ArrayList<>();
-        final String CUSTOMER_NAME = "Sarah";
+        final String CUSTOMER_NAME = "";
 
         // Temporary order items
         orderItems.add(new OrderItem("Cappuccino", 1, 550.00));
