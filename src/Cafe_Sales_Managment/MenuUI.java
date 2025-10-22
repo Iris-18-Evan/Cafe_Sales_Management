@@ -4,15 +4,17 @@
  */
 package Cafe_Sales_Managment;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import java.sql.Connection;        
+import java.sql.PreparedStatement; 
+import java.sql.ResultSet;         
+import java.sql.SQLException;      
+import java.sql.Statement;        
+
+import java.util.ArrayList;        
+import java.util.List;             
+
+import javax.swing.JOptionPane;    
+import javax.swing.JTextField;     
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -161,7 +163,7 @@ public class MenuUI extends javax.swing.JFrame {
             this.dispose();
 
             // Open the Login page again
-            Login_UI loginPage = new Login_UI();
+            Login_UII loginPage = new Login_UI();
             loginPage.setVisible(true);
         }
     }//GEN-LAST:event_btnLogoutActionPerformed
@@ -183,20 +185,19 @@ public class MenuUI extends javax.swing.JFrame {
 
     private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
         
-        List<OrderItem> orderItems = new ArrayList<>();
-        final String CUSTOMER_NAME = "";
+        // Collect customer name from the proper UI field
+        final String CUSTOMER_NAME = txtCustomerName.getText().trim(); // Or use your actual field
 
-        // Temporary order items
-        orderItems.add(new OrderItem("Cappuccino", 1, 550.00));
-        orderItems.add(new OrderItem("Croissant", 2, 350.00));
-
-        // Check if order list is empty
+        // Assume orderItems is a List<OrderItem> you've populated from your cart/table model
         if (orderItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "The order list is empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "The order list is empty. Add items first.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Calculate total
+        // Calculate order total
         double totalAmount = orderItems.stream()
                 .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
                 .sum();
@@ -209,66 +210,58 @@ public class MenuUI extends javax.swing.JFrame {
             con = ConnectionClass.createConnection();
             con.setAutoCommit(false); // Start transaction
 
-            // 1️⃣ Insert into Orders table (header)
+            // Insert into Orders table (Header)
             String sqlOrder = "INSERT INTO Orders (Customer_Name, Total_Amount) VALUES (?, ?)";
             pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
             pstmtOrder.setString(1, CUSTOMER_NAME);
             pstmtOrder.setDouble(2, totalAmount);
             pstmtOrder.executeUpdate();
 
-            // Retrieve generated Order_ID
             int orderId = -1;
             try (ResultSet rs = pstmtOrder.getGeneratedKeys()) {
                 if (rs.next()) {
                     orderId = rs.getInt(1);
                 } else {
+                    // If the generated keys are not returned, throw an error to trigger rollback
                     throw new SQLException("Failed to retrieve generated Order ID.");
                 }
             }
 
-            // 2️⃣ Insert into Order_Details table (line items)
-            String sqlOrders = "INSERT INTO Orders (Order_ID, Customer_Name, Order_Date, Total_Amount) VALUES (?,?,?,?)";
-            pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
-            pstmtOrder.setString(1, CUSTOMER_NAME);
-            pstmtOrder.setDouble(2, totalAmount);
-            pstmtOrder.executeUpdate();
-
-            // Get generated Order_ID
-            int Order_ID = -1;
-            ResultSet rs = pstmtOrder.getGeneratedKeys();
-            if (rs.next()) {
-                Order_ID = rs.getInt(1);
-            } else {
-                throw new SQLException("Failed to retrieve generated Order ID.");
-            }
-
-            // 2️⃣ Insert line items into Order_Details
+            // Insert order details (Line Items)
             String sqlDetails = "INSERT INTO Order_Details (Order_ID, Item_Name, Quantity, Unit_Price, Subtotal) VALUES (?, ?, ?, ?, ?)";
             pstmtDetails = con.prepareStatement(sqlDetails);
 
+            // FIX: Changed 'orderItem' to the correct variable name 'orderItems'
             for (OrderItem item : orderItems) {
-                pstmtDetails.setInt(1, orderId); // MUST provide Order_ID here
+                pstmtDetails.setInt(1, orderId);
                 pstmtDetails.setString(2, item.getItemName());
                 pstmtDetails.setInt(3, item.getQuantity());
                 pstmtDetails.setDouble(4, item.getUnitPrice());
                 pstmtDetails.setDouble(5, item.getQuantity() * item.getUnitPrice());
-                pstmtDetails.addBatch();
+                pstmtDetails.addBatch(); // Add statement to the batch
             }
 
-            pstmtDetails.executeBatch();
-            con.commit();
+            pstmtDetails.executeBatch(); // Execute all batch statements
+            con.commit(); // Finalize the transaction
 
             JOptionPane.showMessageDialog(this,
-                    "Order placed successfully for " + CUSTOMER_NAME + "! Order ID: " + orderId,
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    "Order recorded successfully! Order ID: " + orderId,
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
 
-            this.dispose();
+            // Show bill generation UI
+            BillGenerationUI billUI = new BillGenerationUI(orderItems, CUSTOMER_NAME, totalAmount);
+            billUI.setVisible(true);
+
+            // Optionally, clear UI components for next order
+            // FIX: Changed 'orderItem' to the correct variable name 'orderItems'
+            orderItems.clear();
+            // Clear table model if needed
 
         } catch (Exception e) {
+            // Handle Errors and Rollback Transaction
             try {
                 if (con != null) {
-                    con.rollback();
+                    con.rollback(); // Rollback on any failure
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -278,8 +271,8 @@ public class MenuUI extends javax.swing.JFrame {
                     "Database Error",
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-
         } finally {
+            // Close Resources in reverse order of creation
             try {
                 if (pstmtDetails != null) {
                     pstmtDetails.close();
@@ -294,6 +287,9 @@ public class MenuUI extends javax.swing.JFrame {
                 e.printStackTrace();
             }
         }
+
+    }
+
     }//GEN-LAST:event_btnPlacceorderActionPerformed
 
     /**

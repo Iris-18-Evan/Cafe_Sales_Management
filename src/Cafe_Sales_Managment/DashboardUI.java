@@ -4,6 +4,9 @@
  */
 package Cafe_Sales_Managment;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,6 +22,8 @@ public class DashboardUI extends javax.swing.JFrame {
         initComponents();
     }
 
+     
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -30,9 +35,8 @@ public class DashboardUI extends javax.swing.JFrame {
 
         jSeparator1 = new javax.swing.JSeparator();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btnBillgeneration = new javax.swing.JButton();
+        btnReport = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -53,29 +57,21 @@ public class DashboardUI extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButton1.setText("Order Items");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnBillgeneration.setText("Bill Generation");
+        btnBillgeneration.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnBillgenerationActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, -1, -1));
+        jPanel1.add(btnBillgeneration, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
 
-        jButton2.setText("Bill Generation");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnReport.setText("Reports");
+        btnReport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnReportActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 30, -1, -1));
-
-        jButton4.setText("Reports");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-        jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, 90, -1));
+        jPanel1.add(btnReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 30, 120, -1));
 
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -107,26 +103,19 @@ public class DashboardUI extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        OrderUI OUI = new OrderUI();
-        OUI.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btnBillgenerationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBillgenerationActionPerformed
         // TODO add your handling code here:
         BillGenerationUI BGUI = new BillGenerationUI();
         BGUI.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnBillgenerationActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
         // TODO add your handling code here:
         ReportUI RUI = new ReportUI();
         RUI.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_btnReportActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
@@ -180,13 +169,65 @@ public class DashboardUI extends javax.swing.JFrame {
                 new DashboardUI().setVisible(true);
             }
         });
+        
+        try (Connection con = ConnectionClass.createConnection()) {
+
+            // --- 1. Total Sales (Sum of quantities sold today) ---
+            String sqlTotalSales = "SELECT SUM(Quantity) FROM Orders WHERE DATE(Order_Date) = CURDATE()";
+            int totalSales = 0;
+            try (PreparedStatement pstmt = con.prepareStatement(sqlTotalSales); ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    totalSales = rs.getInt(1);
+                }
+            }
+
+            // --- 2. Total Revenue (Sum of total_price or Total_Amount) ---
+            String sqlTotalRevenue = "SELECT SUM(Total_Amount) FROM Orders WHERE DATE(Order_Date) = CURDATE()";
+            double totalRevenue = 0;
+            try (PreparedStatement pstmt = con.prepareStatement(sqlTotalRevenue); ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    totalRevenue = rs.getDouble(1);
+                }
+            }
+
+            // --- 3. Top Selling Product (From Order_Details table) ---
+            String sqlTopProduct = """
+            SELECT Item_Name
+            FROM Order_Details od
+            JOIN Orders o ON od.Order_ID = o.Order_ID
+            WHERE DATE(o.Order_Date) = CURDATE()
+            GROUP BY Item_Name
+            ORDER BY SUM(Quantity) DESC
+            LIMIT 1
+            """;
+
+            String topProduct = "None";
+            try (PreparedStatement pstmt = con.prepareStatement(sqlTopProduct); ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    topProduct = rs.getString("Item_Name");
+                }
+            }
+
+            // --- 4. Display results in label ---
+            lblResult.setText(
+                    "Total Sales: " + totalSales
+                    + " | Total Revenue: " + totalRevenue
+                    + " | Top Product: " + topProduct
+            );
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnBillgeneration;
+    private javax.swing.JButton btnReport;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;

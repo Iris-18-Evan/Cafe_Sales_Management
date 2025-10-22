@@ -3,7 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package Cafe_Sales_Managment;
-
+import javax.swing.*;                     
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;         
+import java.sql.*;                          
+import java.util.*;                        
 /**
  *
  * @author ucwaz
@@ -16,7 +20,29 @@ public class BillGenerationUI extends javax.swing.JFrame {
     public BillGenerationUI() {
         initComponents();
     }
+    public double recalculateFinalTotal() {
+    double runningTotal = 0.0;
+    
+    // Assuming 'OrderitemTable' is the correct name for your JTable object.
+    javax.swing.table.DefaultTableModel itemModel = (javax.swing.table.DefaultTableModel) OrderitemTable.getModel(); 
 
+    for (int i = 0; i < itemModel.getRowCount(); i++) {
+        try {
+            // Corrected: Remove the 'row:' and 'column:' labels.
+            // We read the value from the third column (index 2).
+            Object itemValue = itemModel.getValueAt(i, 2); 
+            
+            // This line is already correct.
+            runningTotal += Double.parseDouble(itemValue.toString()); 
+        } catch (NumberFormatException e) {
+            // Log a warning if a number can't be read, but keep processing other items.
+            System.err.println("Warning: Encountered non-numeric item total at row " + i);
+        }
+    }
+    
+    // This line is now correct.
+    return runningTotal; 
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -28,14 +54,18 @@ public class BillGenerationUI extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtCustomer = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        OrderitemTable = new javax.swing.JTable();
+        lblGrandtotal = new javax.swing.JLabel();
         btnReturn = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        txtCash = new javax.swing.JTextField();
+        txtGrandtotal = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Bill Generation");
@@ -49,22 +79,24 @@ public class BillGenerationUI extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Customer");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 330, -1));
+        jPanel1.add(txtCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 170, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Order items");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 150, -1));
 
-        jButton1.setText("Generate Bill");
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, 120, -1));
+        jButton1.setText("Finalize & Print Bill");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 300, 130, -1));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        OrderitemTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "Method", "Amount", "Total"
@@ -78,20 +110,17 @@ public class BillGenerationUI extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(2).setResizable(false);
+        jScrollPane1.setViewportView(OrderitemTable);
+        if (OrderitemTable.getColumnModel().getColumnCount() > 0) {
+            OrderitemTable.getColumnModel().getColumn(2).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 330, 90));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 380, 90));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel4.setText("Total :");
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, 80, -1));
-
-        jLabel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 220, 80, 20));
+        lblGrandtotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblGrandtotal.setForeground(new java.awt.Color(0, 0, 0));
+        lblGrandtotal.setText("Grand Total");
+        jPanel1.add(lblGrandtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 100, -1));
 
         btnReturn.setText("Return");
         btnReturn.addActionListener(new java.awt.event.ActionListener() {
@@ -99,9 +128,30 @@ public class BillGenerationUI extends javax.swing.JFrame {
                 btnReturnActionPerformed(evt);
             }
         });
-        jPanel1.add(btnReturn, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 260, -1, -1));
+        jPanel1.add(btnReturn, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 300, -1, -1));
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 210, 430, 20));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 310));
+        jLabel3.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel3.setText("Payment Method");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 240, -1, -1));
+
+        jLabel6.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel6.setText("Cash Tendered");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 260, 100, 20));
+        jPanel1.add(txtCash, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 260, 100, -1));
+
+        txtGrandtotal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGrandtotalActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txtGrandtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 280, 100, 40));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 430, 340));
 
         pack();
         setLocationRelativeTo(null);
@@ -113,6 +163,78 @@ public class BillGenerationUI extends javax.swing.JFrame {
         DUI.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnReturnActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // First, let's make sure the final math is correct before we print.
+            double finalAmountDue = recalculateFinalTotal();
+
+            // Update the screen with the final confirmed total.
+            txtGrandtotal.setText(String.format("%.2f", finalAmountDue));
+
+           
+            StringBuilder receiptText = new StringBuilder();
+
+
+            // Check if we know who the customer is
+            String customerID = txtCustomer.getText().trim();
+            if (customerID.isEmpty()) {
+                customerID = "Guest Shopper";
+            }
+
+            receiptText.append("Customer: ").append(customerID).append("\n");
+            receiptText.append("Date:     ").append(new java.util.Date()).append("\n");
+            
+
+            // --- Itemized List (The 'what they bought' section) ---
+            receiptText.append(String.format("%-20s %5s %8s\n", "ITEM", "QTY", "SUBTOTAL"));
+            
+
+            javax.swing.table.DefaultTableModel itemModel = (javax.swing.table.DefaultTableModel) OrderitemTable.getModel();
+
+            // Loop through the table to grab each item's details
+            for (int i = 0; i < itemModel.getRowCount(); i++) {
+                String itemName = itemModel.getValueAt(i, 0).toString(); // Name of the item (e.g., Coffee, Service Fee)
+                String quantity = itemModel.getValueAt(i, 1).toString(); // The 'Amount' column
+                String itemSubtotal = itemModel.getValueAt(i, 2).toString(); // The 'Total' column for that item
+
+                // Format it nicely for the receipt printout
+                receiptText.append(String.format("%-20s %5s %8s\n",
+                        itemName.substring(0, Math.min(itemName.length(), 19)), // Trim long names
+                        quantity,
+                        itemSubtotal));
+            }
+
+            
+
+            // --- Totals (The important numbers) ---
+            receiptText.append(String.format("%-25s %8.2f\n", "TOTAL DUE:", finalAmountDue));
+            
+            
+            // Show the formatted bill in a pop-up window so the cashier can check it
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    new javax.swing.JScrollPane(new javax.swing.JTextArea(receiptText.toString())),
+                    "Receipt Ready to Print",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE
+            );
+
+            // NOTE: To actually print to a thermal printer, you would replace the JOptionPane
+            // with more advanced Java Printing API code or direct port communication.
+        } catch (Exception issue) {
+            // Uh oh, something went wrong! Tell the user.
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Could not finalize bill: " + issue.getMessage(),
+                    "Processing Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void txtGrandtotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGrandtotalActionPerformed
+        // TODO add your handling code here:
+       
+    }//GEN-LAST:event_txtGrandtotalActionPerformed
 
     /**
      * @param args the command line arguments
@@ -150,15 +272,19 @@ public class BillGenerationUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable OrderitemTable;
     private javax.swing.JButton btnReturn;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblGrandtotal;
+    private javax.swing.JTextField txtCash;
+    private javax.swing.JTextField txtCustomer;
+    private javax.swing.JTextField txtGrandtotal;
     // End of variables declaration//GEN-END:variables
 }
