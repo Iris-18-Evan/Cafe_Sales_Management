@@ -4,6 +4,7 @@
  */
 package Cafe_Sales_Managment;
 
+import Cafe_Sales_Managment.Login_UI;
 import java.sql.Connection;        
 import java.sql.PreparedStatement; 
 import java.sql.ResultSet;         
@@ -163,7 +164,7 @@ public class MenuUI extends javax.swing.JFrame {
             this.dispose();
 
             // Open the Login page again
-            Login_UII loginPage = new Login_UI();
+            Login_UI loginPage = new Login_UI();
             loginPage.setVisible(true);
         }
     }//GEN-LAST:event_btnLogoutActionPerformed
@@ -185,7 +186,7 @@ public class MenuUI extends javax.swing.JFrame {
 
     private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
         
-        // Collect customer name from the proper UI field
+        /*// Collect customer name from the proper UI field
         final String CUSTOMER_NAME = txtCustomerName.getText().trim(); // Or use your actual field
 
         // Assume orderItems is a List<OrderItem> you've populated from your cart/table model
@@ -288,7 +289,7 @@ public class MenuUI extends javax.swing.JFrame {
             }
         }
 
-    }
+    }*/
 
     }//GEN-LAST:event_btnPlacceorderActionPerformed
 

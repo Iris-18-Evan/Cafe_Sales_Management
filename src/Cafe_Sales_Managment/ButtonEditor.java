@@ -17,7 +17,7 @@ public class ButtonEditor extends DefaultCellEditor {
     private String label;
     private boolean clicked;
     private JTable table;
-    private MenuUI menuUI; // reference to MenuUI
+    private MenuUI menuUI; 
 
     public ButtonEditor(JTextField txt, MenuUI menuUI) {
         super(txt);
