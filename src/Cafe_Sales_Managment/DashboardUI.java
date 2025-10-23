@@ -23,33 +23,38 @@ public class DashboardUI extends javax.swing.JFrame {
      */
     public DashboardUI() {
         initComponents();
+        //loadCustomerData();
     }
 
-     public void loadCustomerData() {
+     /*public void loadCustomerData() {
         // 1. Get the table's data model
-         DefaultTableModel model = (DefaultTableModel) customerTable.getModel();
+        DefaultTableModel model = (DefaultTableModel) customerTable.getModel();
 
         // 2. Clear existing data from the table
         model.setRowCount(0);
 
-        // 3. Set the column headers (ensure these match your table design!)
+        // 3. Set the column headers (Crucial: these must match the table columns in your UI)
         model.setColumnIdentifiers(new Object[]{"Customer ID", "Name", "Phone", "Address"});
 
-        java.sql.Connection con = null;
-        java.sql.PreparedStatement pst = null;
-        java.sql.ResultSet rs = null;
+        // Use imported types
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
         String query = "SELECT customer_id, name, phone, address FROM Customer ORDER BY customer_id";
 
         try {
-            con = ConnectionClass.createConnection();
-            pst = con.prepareStatement();
+            // ASSUMPTION: ConnectionClass.getConnection() is a public static method that returns a Connection.
+            con = ConnectionClass.getConnection();
+
+            pst = con.prepareStatement(query);
             rs = pst.executeQuery();
 
             // 4. Iterate through the results and add rows to the table model
             while (rs.next()) {
-                // Retrieve data by column name or index
                 Object[] row = new Object[4];
-                row[0] = rs.getInt("customer_id"); // Assuming customer_id is an integer
+
+                // Corrected syntax for data retrieval
+                row[0] = rs.getInt("customer_id");
                 row[1] = rs.getString("name");
                 row[2] = rs.getString("phone");
                 row[3] = rs.getString("address");
@@ -60,7 +65,8 @@ public class DashboardUI extends javax.swing.JFrame {
         } catch (java.sql.SQLException ex) {
             ex.printStackTrace();
             javax.swing.JOptionPane.showMessageDialog(this, "Error loading customer data: " + ex.getMessage(), "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-        } finally {
+        } // The finally block is essential for cleaning up resources
+        finally {
             // 5. Close resources
             try {
                 if (rs != null) {
@@ -76,7 +82,7 @@ public class DashboardUI extends javax.swing.JFrame {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
         
     /**
      * This method is called from within the constructor to initialize the form.
@@ -124,12 +130,37 @@ public class DashboardUI extends javax.swing.JFrame {
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 20, 630));
 
-        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("AVG ORDER VALUE");
-        jPanel6.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
-        jPanel6.add(txtAvgOrderValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, -1, -1));
+
+        txtAvgOrderValue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtAvgOrderValueActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(txtAvgOrderValue, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtAvgOrderValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 30, 180, 70));
 
@@ -168,36 +199,88 @@ public class DashboardUI extends javax.swing.JFrame {
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 630));
 
-        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("UNIQUI CUSTOMERS");
-        jPanel5.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 150, -1));
-        jPanel5.add(txtUniqueCustomers, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, -1, -1));
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(txtUniqueCustomers, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel4)
+                .addGap(4, 4, 4)
+                .addComponent(txtUniqueCustomers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 30, 190, 70));
 
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("ITEMS SOLD");
-        jPanel4.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 130, -1));
-        jPanel4.add(txtItemSold, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 32, 70, 20));
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(59, Short.MAX_VALUE)
+                .addComponent(txtItemSold, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel3)
+                .addGap(6, 6, 6)
+                .addComponent(txtItemSold, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 30, 190, 70));
 
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("TOTAL REVENUE");
-        jPanel3.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, 90, -1));
 
         txtTotalRevenue.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTotalRevenueActionPerformed(evt);
             }
         });
-        jPanel3.add(txtTotalRevenue, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 70, -1));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 30, 170, 70));
 
@@ -287,8 +370,12 @@ public class DashboardUI extends javax.swing.JFrame {
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-        loadCustomerData();
+        //loadCustomerData();
     }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void txtAvgOrderValueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAvgOrderValueActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtAvgOrderValueActionPerformed
 
     /**
      * @param args the command line arguments

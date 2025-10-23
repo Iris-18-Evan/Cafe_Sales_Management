@@ -13,9 +13,14 @@ import java.sql.PreparedStatement;
  * @author ucwaz
  */
 public class ConnectionClass {
+
     static Connection createConnection() throws Exception {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/cafe_sales_management", "root", "274123");
         return c;
+    }
+
+    static Connection getConnection() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
