@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -24,7 +25,58 @@ public class DashboardUI extends javax.swing.JFrame {
         initComponents();
     }
 
-     
+     public void loadCustomerData() {
+        // 1. Get the table's data model
+         DefaultTableModel model = (DefaultTableModel) customerTable.getModel();
+
+        // 2. Clear existing data from the table
+        model.setRowCount(0);
+
+        // 3. Set the column headers (ensure these match your table design!)
+        model.setColumnIdentifiers(new Object[]{"Customer ID", "Name", "Phone", "Address"});
+
+        java.sql.Connection con = null;
+        java.sql.PreparedStatement pst = null;
+        java.sql.ResultSet rs = null;
+        String query = "SELECT customer_id, name, phone, address FROM Customer ORDER BY customer_id";
+
+        try {
+            con = ConnectionClass.createConnection();
+            pst = con.prepareStatement();
+            rs = pst.executeQuery();
+
+            // 4. Iterate through the results and add rows to the table model
+            while (rs.next()) {
+                // Retrieve data by column name or index
+                Object[] row = new Object[4];
+                row[0] = rs.getInt("customer_id"); // Assuming customer_id is an integer
+                row[1] = rs.getString("name");
+                row[2] = rs.getString("phone");
+                row[3] = rs.getString("address");
+
+                model.addRow(row);
+            }
+
+        } catch (java.sql.SQLException ex) {
+            ex.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(this, "Error loading customer data: " + ex.getMessage(), "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // 5. Close resources
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
         
     /**
      * This method is called from within the constructor to initialize the form.
@@ -39,24 +91,26 @@ public class DashboardUI extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jPanel6 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        txtAvgOrderValue = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
         btnReport = new javax.swing.JButton();
         btnBillgeneration = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        txtUniqueCustomers = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txtItemSold = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         txtTotalRevenue = new javax.swing.JTextField();
         jSeparator2 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        customerTable = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
+        btnUpdate = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Dashboard");
@@ -68,18 +122,22 @@ public class DashboardUI extends javax.swing.JFrame {
         jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
         jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 0, 20, 630));
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 20, 630));
 
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("AVG ORDER VALUE");
         jPanel6.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
+        jPanel6.add(txtAvgOrderValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, -1, -1));
 
-        jTextField4.setText("jTextField4");
-        jPanel6.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, -1, -1));
+        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 30, 180, 70));
 
-        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(890, 20, 180, 70));
+        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Cafe_Sales_Managment/image/hr-manager-simple-colored-flat-icon_734610-18836 1.jpg"))); // NOI18N
+        jLabel6.setText("jLabel6");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 360));
 
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -90,7 +148,7 @@ public class DashboardUI extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 530, 100, -1));
+        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 570, 100, -1));
 
         btnReport.setText("Reports");
         btnReport.addActionListener(new java.awt.event.ActionListener() {
@@ -98,7 +156,7 @@ public class DashboardUI extends javax.swing.JFrame {
                 btnReportActionPerformed(evt);
             }
         });
-        jPanel2.add(btnReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 400, 120, -1));
+        jPanel2.add(btnReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 490, 120, -1));
 
         btnBillgeneration.setText("Bill Generation");
         btnBillgeneration.addActionListener(new java.awt.event.ActionListener() {
@@ -106,31 +164,27 @@ public class DashboardUI extends javax.swing.JFrame {
                 btnBillgenerationActionPerformed(evt);
             }
         });
-        jPanel2.add(btnBillgeneration, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 360, 120, -1));
+        jPanel2.add(btnBillgeneration, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 450, 120, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 220, 630));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 630));
 
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("UNIQUI CUSTOMERS");
         jPanel5.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 150, -1));
+        jPanel5.add(txtUniqueCustomers, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, -1, -1));
 
-        jTextField3.setText("jTextField3");
-        jPanel5.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, -1, -1));
-
-        jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 20, 190, 70));
+        jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 30, 190, 70));
 
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("ITEMS SOLD");
         jPanel4.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 130, -1));
+        jPanel4.add(txtItemSold, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 32, 70, 20));
 
-        jTextField2.setText("jTextField2");
-        jPanel4.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 32, -1, 30));
-
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 20, 190, 70));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 30, 190, 70));
 
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -143,36 +197,52 @@ public class DashboardUI extends javax.swing.JFrame {
                 txtTotalRevenueActionPerformed(evt);
             }
         });
-        jPanel3.add(txtTotalRevenue, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, -1, -1));
+        jPanel3.add(txtTotalRevenue, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 70, -1));
 
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 20, 170, 70));
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 30, 170, 70));
 
         jSeparator2.setBackground(new java.awt.Color(0, 0, 0));
         jSeparator2.setForeground(new java.awt.Color(0, 0, 0));
-        jPanel1.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 120, 880, 10));
+        jPanel1.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 130, 880, 10));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        customerTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Customer ID", "Name", "Phone", "Address"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
+            };
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 390, 420, 220));
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(customerTable);
+        if (customerTable.getColumnModel().getColumnCount() > 0) {
+            customerTable.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 360, 410, 220));
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Customer Table");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 350, 150, 30));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 320, 150, 30));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1100, 630));
+        btnUpdate.setText("Update");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 590, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1280, 630));
 
         pack();
         setLocationRelativeTo(null);
@@ -215,6 +285,11 @@ public class DashboardUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTotalRevenueActionPerformed
 
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        loadCustomerData();
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -254,12 +329,15 @@ public class DashboardUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBillgeneration;
     private javax.swing.JButton btnReport;
+    private javax.swing.JButton btnUpdate;
+    private javax.swing.JTable customerTable;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -269,10 +347,9 @@ public class DashboardUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField txtAvgOrderValue;
+    private javax.swing.JTextField txtItemSold;
     private javax.swing.JTextField txtTotalRevenue;
+    private javax.swing.JTextField txtUniqueCustomers;
     // End of variables declaration//GEN-END:variables
 }

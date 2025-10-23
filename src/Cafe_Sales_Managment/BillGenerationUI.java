@@ -7,7 +7,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;         
 import java.sql.*;                          
-import java.util.*;                        
+import java.util.*;       
+
 /**
  *
  * @author ucwaz
@@ -43,6 +44,18 @@ public class BillGenerationUI extends javax.swing.JFrame {
     // This line is now correct.
     return runningTotal; 
 }
+    public void addOrderItem(Object[] rowData) {
+        javax.swing.table.DefaultTableModel model
+                = (javax.swing.table.DefaultTableModel) OrderitemTable.getModel();
+
+        model.addRow(rowData);
+    }
+
+// Method to receive and set the final grand total display
+    public void setGrandTotal(double total) {
+        String formattedTotal = String.format("%.2f", total);
+        txtGrandtotal.setText(formattedTotal);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -79,6 +92,12 @@ public class BillGenerationUI extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Customer");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
+
+        txtCustomer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCustomerActionPerformed(evt);
+            }
+        });
         jPanel1.add(txtCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 170, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -235,6 +254,43 @@ public class BillGenerationUI extends javax.swing.JFrame {
         // TODO add your handling code here:
        
     }//GEN-LAST:event_txtGrandtotalActionPerformed
+
+    private void txtCustomerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCustomerActionPerformed
+        // TODO add your handling code here:
+        /*String name = customerNameField.getText().trim();
+        if (name.isEmpty()) {
+            return;
+        }
+
+        java.sql.Connection con = null;
+        java.sql.PreparedStatement pst = null;
+        java.sql.ResultSet rs = null;
+        String query = "SELECT phone, address FROM Customer WHERE name = ?";
+
+        try {
+            con = ConnectionClass.createConnection();
+            pst = con.prepareStatement(query);
+            pst.setString(1, name);
+            rs = pst.executeQuery();
+
+            if (rs.next()) {
+                // Customer found - Populate fields
+                customerPhoneField.setText(rs.getString("phone"));
+                customerAddressField.setText(rs.getString("address"));
+                javax.swing.JOptionPane.showMessageDialog(this, "Customer details loaded!", "Found", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Customer not found - Treat as new, prompt user to enter phone/address
+                customerPhoneField.setText(""); // Clear fields
+                customerAddressField.setText("");
+                javax.swing.JOptionPane.showMessageDialog(this, "New customer. Please enter Phone and Address.", "New Customer", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (java.sql.SQLException ex) {
+            ex.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // Close resources (con, pst, rs) in a real implementation
+        }*/
+    }//GEN-LAST:event_txtCustomerActionPerformed
 
     /**
      * @param args the command line arguments

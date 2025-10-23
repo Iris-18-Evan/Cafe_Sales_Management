@@ -186,110 +186,63 @@ public class MenuUI extends javax.swing.JFrame {
 
     private void btnPlacceorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlacceorderActionPerformed
         
-        /*// Collect customer name from the proper UI field
-        final String CUSTOMER_NAME = txtCustomerName.getText().trim(); // Or use your actual field
+        // 1. Get the model from the cart table (the data source)
+        javax.swing.table.DefaultTableModel cartModel
+                = (javax.swing.table.DefaultTableModel) cartTable.getModel();
 
-        // Assume orderItems is a List<OrderItem> you've populated from your cart/table model
-        if (orderItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "The order list is empty. Add items first.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+        // Check if the cart is empty
+        if (cartModel.getRowCount() == 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "The cart is empty. Please add items first.", "Order Error", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Calculate order total
-        double totalAmount = orderItems.stream()
-                .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
-                .sum();
+        // 2. Initialize the BillGenerationUI form
+        BillGenerationUI billUI = new BillGenerationUI();
 
-        Connection con = null;
-        PreparedStatement pstmtOrder = null;
-        PreparedStatement pstmtDetails = null;
+        // 3. Prepare to calculate the Grand Total and transfer rows
+        double grandTotal = 0.0;
 
-        try {
-            con = ConnectionClass.createConnection();
-            con.setAutoCommit(false); // Start transaction
+        // Column indices in your cart table:
+        // Assuming Price is column 2 and Quantity/Amount is column 3, and Total is column 4 (if present).
+        int itemCol = 0; 
+        int priceCol = 2; 
+        int amountCol = 3; 
+        int totalCol = 4; 
 
-            // Insert into Orders table (Header)
-            String sqlOrder = "INSERT INTO Orders (Customer_Name, Total_Amount) VALUES (?, ?)";
-            pstmtOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
-            pstmtOrder.setString(1, CUSTOMER_NAME);
-            pstmtOrder.setDouble(2, totalAmount);
-            pstmtOrder.executeUpdate();
+        // 4. Iterate and transfer data
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            // Get values from the cart row
+            String itemName = cartModel.getValueAt(i, itemCol).toString();
 
-            int orderId = -1;
-            try (ResultSet rs = pstmtOrder.getGeneratedKeys()) {
-                if (rs.next()) {
-                    orderId = rs.getInt(1);
-                } else {
-                    // If the generated keys are not returned, throw an error to trigger rollback
-                    throw new SQLException("Failed to retrieve generated Order ID.");
-                }
-            }
+            // Ensure values are parsed correctly. Use Double.parseDouble() for calculations.
+            double price = Double.parseDouble(cartModel.getValueAt(i, priceCol).toString());
+            int amount = Integer.parseInt(cartModel.getValueAt(i, amountCol).toString());
+            double total = price * amount; // Recalculate or use the existing total column value
 
-            // Insert order details (Line Items)
-            String sqlDetails = "INSERT INTO Order_Details (Order_ID, Item_Name, Quantity, Unit_Price, Subtotal) VALUES (?, ?, ?, ?, ?)";
-            pstmtDetails = con.prepareStatement(sqlDetails);
+            // Add to the running Grand Total
+            grandTotal += total;
 
-            // FIX: Changed 'orderItem' to the correct variable name 'orderItems'
-            for (OrderItem item : orderItems) {
-                pstmtDetails.setInt(1, orderId);
-                pstmtDetails.setString(2, item.getItemName());
-                pstmtDetails.setInt(3, item.getQuantity());
-                pstmtDetails.setDouble(4, item.getUnitPrice());
-                pstmtDetails.setDouble(5, item.getQuantity() * item.getUnitPrice());
-                pstmtDetails.addBatch(); // Add statement to the batch
-            }
+            // Create an array for the new row in BillGenerationUI table
+            // The column structure here must match the BillGenerationUI's "Order Items" table: 
+            // [Item Name, Price, Amount, Total]
+            Object[] billRow = {
+                itemName,
+                price,
+                amount,
+                total
+            };
 
-            pstmtDetails.executeBatch(); // Execute all batch statements
-            con.commit(); // Finalize the transaction
-
-            JOptionPane.showMessageDialog(this,
-                    "Order recorded successfully! Order ID: " + orderId,
-                    "Success", JOptionPane.INFORMATION_MESSAGE);
-
-            // Show bill generation UI
-            BillGenerationUI billUI = new BillGenerationUI(orderItems, CUSTOMER_NAME, totalAmount);
-            billUI.setVisible(true);
-
-            // Optionally, clear UI components for next order
-            // FIX: Changed 'orderItem' to the correct variable name 'orderItems'
-            orderItems.clear();
-            // Clear table model if needed
-
-        } catch (Exception e) {
-            // Handle Errors and Rollback Transaction
-            try {
-                if (con != null) {
-                    con.rollback(); // Rollback on any failure
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            JOptionPane.showMessageDialog(this,
-                    "Error: " + e.getMessage(),
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } finally {
-            // Close Resources in reverse order of creation
-            try {
-                if (pstmtDetails != null) {
-                    pstmtDetails.close();
-                }
-                if (pstmtOrder != null) {
-                    pstmtOrder.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            // Call a public method in BillGenerationUI to add the row
+            billUI.addOrderItem(billRow);
         }
 
-    }*/
+        // 5. Pass the final Grand Total to BillGenerationUI
+        billUI.setGrandTotal(grandTotal);
+
+        // 6. Make the BillGenerationUI visible
+        billUI.setVisible(true);
+        // Optional: Close the MenuUI if the order is finalized
+        // this.dispose();
 
     }//GEN-LAST:event_btnPlacceorderActionPerformed
 
